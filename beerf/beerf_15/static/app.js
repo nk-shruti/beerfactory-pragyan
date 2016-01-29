@@ -228,7 +228,7 @@ app.factory('TurnStageBasedFunctions', ['$http', function($http){
 
 //controller for the data inside tabs
 app.controller('StoreController', ['AnyTimeFunctions', 'TurnStageBasedFunctions', '$scope', function(AnyTimeFunctions, TurnStageBasedFunctions, $scope){					
-
+	$scope.Math = window.Math
 	var vm = this;
 
 	vm.products = [{
@@ -470,15 +470,15 @@ var x = angular.element(demandpopup);
 		console.log('Supply values', vm.supplyValues);
 
 		var i=0;
-		for(var order of vm.products[0].orders){
-			order.to_no = vm.supplyValues[i];
+		for(var j=0;j<(Math.floor((vm.status.data.turn-1)/5)+1)*3; j++){
+			vm.supplyValues[i]=vm.products[0].orders[j].to_no;
 			i++;
 		}
 
 		var supply = '';
 
-		for(value of vm.supplyValues){
-			supply += (value + ',');
+		for(var k=0;k<(Math.floor((vm.status.data.turn-1)/5)+1)*3;k++){
+			supply += (vm.supplyValues[k] + ',');
 		}
 
 		supply = supply.substr(0, supply.length-1);
@@ -534,14 +534,14 @@ var x = angular.element(demandpopup);
 
 	vm.mapclicked = function(e){
 		console.log('MAP CLICKED ',e);
-		if(e>0&&e<4){
+		if(e>0&&e<=Math.floor(((vm.status.data.turn-1)/5)+1)*3){
 			console.log('EEEE',e);
 		var xref='';
 		var ret = vm.products[0].orders[e-1]
         xref = ret.name+"<br>STORYYYY FOR 5 LINES?<br>2<br>3<br>4<br>5<br>POPULARITY<br>DEMAND: "+ret.order_no+"<br>SUPPLIED: <input id='tono' type='number' min='0' max='"+ret.order_no+"' value='"+ret.to_no+"' ng-model='store.supplyValues[$index]'></input><br><button class='btn btn-default' value='confirm' onclick='confirmorder("+e+")'>CONFIRM</button>";
 		angular.element(selections).html(xref);
 		}
-		else if(e>=4){
+		else if(e>=Math.floor(((vm.status.data.turn-1)/5)+1)*3+1){
 			var xref="RETAILER "+e+" NOT UNLOCKED YET!<br>KEEP PLAYING TO UNLOCK THEM!<br>";
 			angular.element(selections).html(xref);
 

@@ -170,10 +170,11 @@ console.log('mapUrl is', mapUrl );
                 </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="order in store.products[0].orders track by $index">
+            <tr ng-repeat="order in store.products[0].orders|limitTo:(Math.floor((store.status.data.turn-1)/5)+1)*3">
                 <td class="col-md-3"> {$order.from$}</td>
                 <td class="col-md-3"> {$order.order_no$}</td>
                 <td class="col-md-3"> <input type="number" min="0" max="{$order.order_no$}" class="form-control" ng-model="order.to_no" class="col-sm-12">  </input></td>
+                <td>{$(Math.floor((store.status.data.turn-1)/5)+1)*3$}</td>
             </tr>
         </tbody>
     </table>
