@@ -3,29 +3,28 @@
 <title>The Beer Factory</title>
 
 <head> 
-	<script type="text/javascript" src="{% static "angular/angular.min.js" %}"> </script>
-	<meta charset="utf-8"/>
-	<link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.6-dist/css/bootstrap.min.css" %}" />
-
-	<link rel="stylesheet" type="text/css" href="{% static "css/left.css" %}" />
-	<link rel="stylesheet" type="text/css" href="{% static "css/angular-toastr.css" %}" />
-	<!--<script src="https://foxandxss.github.io/angular-toastr/vendor/angular-animate.js"></script>
-	<script src="https://npmcdn.com/angular-toastr/dist/angular-toastr.tpls.js"></script>-->
-
+    <script type="text/javascript" src="{% static "angular/angular.min.js" %}"> </script>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.6-dist/css/bootstrap.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/left.css" %}" />
+    <link rel="stylesheet" href="{% static "css/angular-toastr.css" %}" />
+    <script src="{% static "js/jquery.min.js" %}"></script>
+    <script src="{% static "js/jquery.imagemapster.js" %}"></script>
+    <script src="{% static "bootstrap-3.3.6-dist/js/bootstrap.min.js" %}"></script>
     <script src="{% static "js/angular-animate.js" %}"></script>
     <script src="{% static "js/angular-toastr.tpls.js" %}"></script>
-
-
-	
-	<script src="{% static "js/jquery.min.js" %}"></script>
-	<script src="{% static "js/jquery.imagemapster.js" %}"></script>
     <script src="{% static "bootstrap-3.3.6-dist/js/bootstrap.min.js" %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static "css/left.css" %}" />
 </head>
 
 <body ng-cloak>
 
+
 <div ng-controller = "StoreController as store">
+    <div id="loading">
+
+    </div>
+
 	<nav class="navbar navbar-default navbar-fixed-top nav-container">
 	  	<div class="container-fluid"   ng-repeat="product in store.products">
 	   		<div class="navbar-header col-md-3">
@@ -37,6 +36,7 @@
 	   		  <li class="col-md-2"> STAGE: {$ store.status.data.stage $} </li>
 			  <li class="col-md-2"> INVENTORY: {$ store.factoryDetails.data.factory_1.inventory $}</li>
 			  <li class="col-md-2"> MONEY: {$ store.factoryDetails.data.factory_1.money $}</li>
+             <li class="col-md-2"> SCORE: {$ store.factoryDetails.data.factory_1.score $}</li>
 			  <li class="col-md-2"> Hi {{ name }} </li>	
 	   		</ul>
 		</div>
@@ -44,7 +44,7 @@
 
 
 	<div class="progress">
-	  <div id="progressbartop" class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="50"
+	  <div id="progressbartop" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="50"
 	  aria-valuemin="0" aria-valuemax="100" style="width:33%; height:2rem;">
 	    Stage 1 of 3
 	  </div>
@@ -104,8 +104,7 @@
 			<script src="{% static "js/jquery.imagemapster.js" %}"></script>
 			<script type="text/javascript" src="{% static "mapp.js" %}"></script>
 		</div>
-
-        <div id="man">
+  <!--       <div id="man">
             <div class="msg">
                 <div id="msg1" ng-show="store.factoryDetails.data.factory_1.money>5000 && store.factoryDetails.data.factory_1.money<10000" style="position:absolute;z-index:999;">
                     Playing Good! Keep it up!
@@ -123,11 +122,12 @@
             <div id="image">
                 <img src="{% static "images/hp.gif" %}" style="position:absolute;z-index:999;">
             </div>
-        </div>
+        </div> -->
 
 
 
         <div id="right_half">
+
             <!-- <div ng-show="store.status.data.stage=='1'||store.status.data.stage=='0'||store.status.data.stage=='2'"> -->
             
             <!-- stage 0 or 1. Getting demand stage or placing order to the retailers stage-->
@@ -145,6 +145,9 @@
             <div ng-show="store.status.data.stage=='1'||store.status.data.stage=='0'" id="rightback1">
                
 
+            <div ng-show="store.status.data.stage=='1'||store.status.data.stage=='0'">
+
+
                 <ul id="demandtabs" class="nav nav-tabs" role="tablist">
                     <li class="active">
                         <a href="#demandtab" role="tab" data-toggle="tab"> DEMAND </a>
@@ -153,12 +156,10 @@
                     <a href="#history1tab" role="tab" data-toggle="tab"> HISTORY </a>
                     </li>
                 </ul>
-                    <!-- <button class = "btn btn-default" value = "Get Demand" ng-click = "store.getDemand()" onclick="getDemand()">GET DEMAND</button> -->
-                    <!-- <button ui-sref="stage1">Click here!</button> -->
                 <div class="tab-content">
                     <div id="demandtab" class="tab-pane fade in active">
                         <div id="selections" class="rightcontent">
-                            <div class="well"><center>CLICK ON A RETAILER OR FACTORY TO SEE THE DEMAND</center></div>
+                            <div class="well" ng-hide="store.e>0"><center>CLICK ON A RETAILER OR FACTORY TO SEE THE DEMAND</center></div>
 
                             <div class="jumbotron">
                                 <div ng-show="store.e>0 && store.e<=store.map.check1">
@@ -176,7 +177,7 @@
                                             POPULARITY: 
                                         </div>
                                         <div class="col-md-6"> 
-                                            <div class='progress-bar progress-bar-success progress-bar-striped active' role='progressbar' aria-valuenow='50' aria-valuemin='0' aria-valuemax='100' ng-style="{width: (store.getPopPercent(store.mapDetails.data.popularity[store.e-1])+'%')}" style="height: 2rem"> {$ Math.floor(store.mapDetails.data.popularity[store.e-1]*50) $} %
+                                            <div class='progress-bar progress-bar-success progress-bar-striped' role='progressbar' aria-valuenow='50' aria-valuemin='0' aria-valuemax='100' ng-style="{width: (store.getPopPercent(store.mapDetails.data.popularity[store.e-1])+'%')}" style="height: 2rem"> {$ Math.floor(store.mapDetails.data.popularity[store.e-1]*50) $} %
                                             </div> 
                                         </div>
                                     </div>
@@ -319,7 +320,7 @@
                 
                 <ul id="ordertabs" class="nav nav-tabs" role="tablist">
                     <li class="active">
-                        <a href="#ordertab" role="tab" data-toggle="tab"> DEMAND </a>
+                        <a href="#ordertab" role="tab" data-toggle="tab"> ORDER </a>
                     </li>
                     <li>
                     <a href="#history2tab" role="tab" data-toggle="tab"> HISTORY </a>
@@ -330,20 +331,20 @@
                     <div id="ordertab" class="tab-pane fade in active">
                         <table>
                             <tr>
-                                <td>  AMOUNT IN INVENTORY </td>
+                                <td>  Amount in Inventory </td>
                                 <td> {$ store.factoryDetails.data.factory_1.inventory $} </td>
                             </tr> 
                             <tr>
                                 <td>MONEY</td>
-                                <td>{$ store.factoryDetails.data.factory_1.money $}</td>
+                                <td><span id="money">{$ store.factoryDetails.data.factory_1.money $}</span></td>
+                            </tr>
+                            <tr>
+                                <td>PRODUCTION CAPACITY</td>
+                                <td id="cur_capacity">{$ store.factoryDetails.data.factory_1.capacity $}</td>
                             </tr>
                             <tr>
                                 <td>PRICE PER UNIT</td>
                                 <td>40</td>
-                            </tr>
-                            <tr>
-                                <td>TOTAL DEMAND LAST TURN</td>
-                                <td>{$ store.factoryDetails.data.factory_1.total_demand $}</td>
                             </tr>
                             <tr>
                                 <td>AMOUNT TO BE ORDERED</td>
@@ -405,7 +406,7 @@
             <div ng-show="store.status.data.stage=='3'">
                 <ul id="upgradetabs" class="nav nav-tabs nav-justified" role="tablist">
                     <li class="active">
-                        <a href="#upgradetab" role="tab" data-toggle="tab"> DEMAND </a>
+                        <a href="#upgradetab" role="tab" data-toggle="tab"> UPGRADE FACTORY </a>
                     </li>
                     <li>
                     <a href="#history3tab" role="tab" data-toggle="tab"> HISTORY </a>
@@ -416,28 +417,34 @@
                         
                         <div class="jumbotron">
                             <div class="row">
-                                <div class="col-md-6 col-md-offset-2">Cost for next upgrade: </div> <div class="col-md-3"> {$ store.capacityDetails.upgrade_cost $}</div>
+                                <div class="col-md-6 col-md-offset-2">Cost for next upgrade: </div> <div class="col-md-3"> {$ store.factoryDetails.data.factory_1.upgrade_cost $}</div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 col-md-offset-2"> Current Capacity:  </div> <div class="col-md-3"> {$ store.capacityDetails.current_capacity $} </div>
+                                <div class="col-md-6 col-md-offset-2"> Current Capacity:  </div> <div class="col-md-3">{$ store.factoryDetails.data.factory_1.capacity $}</div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 col-md-offset-2"> Capacity if upgraded:  </div> <div class="col-md-3"> {$ store.capacityDetails.next_upgrade_capacity $}</div>
+                                <div class="col-md-6 col-md-offset-2"> Capacity if upgraded:  </div> <div class="col-md-3"> {$ store.factoryDetails.data.factory_1.next_upgrade_capacity $}</div>
                             </div>
 
                             <br>
         
-                            <div ng-if="store.capacityDetails.upgrade_cost < store.factoryDetails.data.factory_1.money">
+                            <div ng-if="store.factoryDetails.data.factory_1.upgrade_cost < store.factoryDetails.data.factory_1.money">
                                 <h3><center> Do you want to upgrade your factory? </center></h3>
                                 <button type="button" class="btn btn-primary" style="position: relative; left: 150px;" ng-click="store.upgradeFactory(1)"> Yes! </button>
                                 <button type="button" class="btn btn-primary" style="position: relative; left: 250px;" ng-click="store.upgradeFactory(0)"> No thanks! </button>
                             </div>
 
-                            <div ng-if="store.capacityDetails.upgrade_cost > store.factoryDetails.data.factory_1.money">
+                            <div ng-if="store.factoryDetails.data.factory_1.upgrade_cost > store.factoryDetails.data.factory_1.money">
                                 <h4><center> You do not have enough cash to update your factory  </center></h4>  
                                 <br>
                                 <button type="button" class="btn btn-primary" style="position: relative; left: 400px;" ng-click="store.upgradeFactory(0)"> Go on! </button>
                             </div>    
+
+                            <div ng-if="store.factoryDetails.data.factory_1.next_upgrade_capacity==0">
+                                <h4><center> You can no longer update your factory </center> </h4>
+                                <br>
+                                <button type="button" class="btn btn-primary" style="position: relative; left: 400px;" ng-click="store.upgradeFactory(0)"> Go on! </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -467,7 +474,7 @@
                                                 <tr ng-repeat="demand in day.demand track by $index">
                                                     <td class="col-md-3"><center> R{$ $index+1 $} </center></td>
                                                     <td class="col-md-3"><center> {$ demand $} </center></td>
-                                                    <td class="col-md-3"><center> {$ day.supply[$index] $} </center></td>
+                                                    <td class="col-md-3"><center> {$ l.supply[$index] $} </center></td>
                                                 </tr>
                                             </tbody>
 
@@ -482,13 +489,21 @@
 
                 </div>
 
+
             </div>
 
 
         </div>
+
     </div>
 </div>
-
+</div>
+<div id="movable" style="z-index:1000; width:10%; position:fixed; bottom:10%; left:80%">
+<p ng-hide="0" class="oval-thought">
+    DASjsak<br>asdssasd<br>snkjdsans<br><sjnksjandkaknd<br>
+</p>
+<img src="{% static  "genius.svg" %}" width="100%">
+</div>
 <script>
 // script to feed in ids and necessary urls to app.js
 
@@ -511,10 +526,10 @@ var supplyUrl = "{% url 'supply' %}";
 console.log('supplyUrl is', supplyUrl);
 
 var placeOrderUrl = "{% url 'placeOrder' %}";
-console.log('placeOrderUrl is', placeOrderUrl	);
+console.log('placeOrderUrl is', placeOrderUrl   );
 
 var mapUrl = "{% url 'map' %}";
-console.log('mapUrl is', mapUrl	);
+console.log('mapUrl is', mapUrl );
 
 var updateCapacityUrl = "{% url 'updateCapacity' %}";
 console.log('updateCapacityUrl is', updateCapacityUrl );
@@ -522,18 +537,76 @@ console.log('updateCapacityUrl is', updateCapacityUrl );
 var historyUrl = "{% url 'history' %}";
 console.log('historyUrl is', historyUrl );
 
-var capacityDetailsUrl = "{% url 'getCapacityDetails' %}";
-console.log('historyUrl is', capacityDetailsUrl );
 
 $('#ordertext').keyup(function(){
     var x = this.value;
-    $("#price").html("Order amount: "+(x*40));
+    var rem = parseInt($("#money").html()) - (x*40);
+    var cur_cap = parseInt($("#cur_capacity").html());
+    console.log("REM: ", rem);
+    if(x>=0)
+        if(x<=cur_cap)
+            if(rem>=0)
+                $("#price").html("Order amount: "+(x*40)+"<br>Money left: "+rem);
+            else
+                $("#price").html("Not enough cash!");
+        else
+            $("#price").html("Exceeded capacity!");
+    else
+        $("#price").html("Invalid amount entered!");
 });
+
+$(window).load(function() {
+    $("#loading").fadeOut("slow");
+})
 
 
 </script>
 
-	<script type="text/javascript" src="{% static "app.js" %}"> </script>
-	
+    <script type="text/javascript" src="{% static "app.js" %}"> </script>
+    <script>
+    (function($) {
+    $.fn.drags = function(opt) {
+
+        opt = $.extend({handle:"",cursor:"move"}, opt);
+
+        if(opt.handle === "") {
+            var $el = this;
+        } else {
+            var $el = this.find(opt.handle);
+        }
+
+        return $el.css('cursor', opt.cursor).on("mousedown", function(e) {
+            if(opt.handle === "") {
+                var $drag = $(this).addClass('draggable');
+            } else {
+                var $drag = $(this).addClass('active-handle').parent().addClass('draggable');
+            }
+            var z_idx = $drag.css('z-index'),
+                drg_h = $drag.outerHeight(),
+                drg_w = $drag.outerWidth(),
+                pos_y = $drag.offset().top + drg_h - e.pageY,
+                pos_x = $drag.offset().left + drg_w - e.pageX;
+            $drag.css('z-index', 1000).parents().on("mousemove", function(e) {
+                $('.draggable').offset({
+                    top:e.pageY + pos_y - drg_h,
+                    left:e.pageX + pos_x - drg_w
+                }).on("mouseup", function() {
+                    $(this).removeClass('draggable').css('z-index', z_idx);
+                });
+            });
+            e.preventDefault(); // disable selection
+        }).on("mouseup", function() {
+            if(opt.handle === "") {
+                $(this).removeClass('draggable');
+            } else {
+                $(this).removeClass('active-handle').parent().removeClass('draggable');
+            }
+        });
+
+    }
+})(jQuery);
+$('#movable').drags();
+</script>
+
 </body>
 </html>

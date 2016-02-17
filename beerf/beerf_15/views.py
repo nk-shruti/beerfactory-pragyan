@@ -9,9 +9,10 @@ from django.utils.decorators import decorator_from_middleware
 from beerf_15.models import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from beerf_algo.beerf_algo import algo
+from beerf_algo.beerf_algo import algo as algo
 from utilities import money
 from utilities import inventory
+from django.db.models import Sum
 import random
 import urllib
 import json
@@ -77,6 +78,8 @@ def login(request,error=''):
 def home(request):
 	id = request.session["user_id"]
 	user  = users.objects.get(pk=id)
+	if user.factory:
+		return redirect(beerf_15.views.testhome)
 	return render(request, "home.html", {"name" : user.prag_fullname})
 
 def logout(request):
@@ -304,32 +307,26 @@ def fac_details(request):
 		if id and user:
 			turn = status.objects.get(pid = id).turn
 			factory1 = user.factory
-			factory2 = factory_factory.objects.get(fac1=factory1).fac2
-			
 			capacity1 = capacity.objects.get(fid = factory1.fid,turn = turn)
-			capacity2 = capacity.objects.get(fid = factory2.fid,turn = turn)
-			
-			fac_ret_1 = factory_retailer.objects.filter(fid = factory1).values_list('frid', flat = True)
-			fac_ret_2 = factory_retailer.objects.filter(fid = factory2).values_list('frid', flat = True)
-			
-			sp1 = selling_price.objects.filter(frid__in = fac_ret_1,turn=turn)
-			sp2 = selling_price.objects.filter(frid__in = fac_ret_2,turn=turn)
+			points = score.objects.filter(pid = user).aggregate(Sum('score'))['score__sum']
 			json = {}
 			json["status"] ="200"
 			data = {}
 			fact1={}
-			fact2={}
 			data["description"] = "Success"
 			fact1['fcode'] = factory1.fcode
 			fact1["money"] = factory1.money
 			fact1["capacity"] = capacity1.capacity
 			fact1["inventory"] = factory1.inventory
+			fact1["score"] = points
+			fact1["next_upgrade_capacity"] = algo.calculate_next_capacity(capacity1.capacity)
+			fact1["upgrade_cost"] = algo.calculate_money(capacity1.capacity)
 			data["factory_1"] = fact1
-			fact2['fcode'] = factory2.fcode
-			fact2["money"] = factory2.money
-			fact2["capacity"] = capacity2.capacity
-			fact2["inventory"] = factory2.inventory
-			data["factory_2"] = fact2
+			# fact2['fcode'] = factory2.fcode
+			# fact2["money"] = factory2.money
+			# fact2["capacity"] = capacity2.capacity
+			# fact2["inventory"] = factory2.inventory
+			# data["factory_2"] = fact2
 			json["data"] = data
 			return JsonResponse(json)
 	else:
@@ -553,8 +550,8 @@ def getCapacityDetails(request):
 	if id and user:
 		stat = status.objects.get(pid = id)
 		cur_capacity = capacity.objects.get(fid = user.factory, turn = stat.turn).capacity
-		next_upgrade_capacity = calculate_next_capacity(cur_capacity)
-		upgrade_cost = calculate_money(cur_capacity)
+		next_upgrade_capacity = algo.calculate_next_capacity(cur_capacity)
+		upgrade_cost = algo.calculate_money(cur_capacity)
 		json = {}
 		json["status"] = 200
 		data = {}
@@ -887,16 +884,6 @@ def updateSellingPrice(request):
 	else:
 		return JsonResponse({"status":"100", "data":{"description":"Failed! Wrong type of request"}})
 
-def calculate_next_capacity(cap):
-	cap_array = [200, 400, 700, 1000, 1400, 1800, 2300];
-	cap_index = cap_array.index(cap)
-	return cap_array[cap_index + 1]
-
-def calculate_money(cap):
-	cap_array = [200, 400, 700, 1000, 1400, 1800, 2300];
-	cap_index = cap_array.index(cap)
-	cap_money = [2000, 8000, 12000, 18000, 18000, 18000, 18000];
-	return cap_money[cap_index + 1]
 
 @csrf_exempt
 @decorator_from_middleware(middleware.SessionPIDAuth)
@@ -922,13 +909,15 @@ def updateCapacity(request):
 					flag = request.POST.get("flag")
 					cap_old = capacity.objects.get(turn = int(turn), fid_id = user.factory_id).capacity
 					if(int(flag)==1):
-						cost = calculate_money(cap_old)
+						cost = algo.calculate_money(cap_old)
+						if cost==0:
+							return JsonResponse({"status":"107", "data":{"description":"No More Upgrades"}})
 						cur_money = money.getMoney(user.factory_id)
 						if(cur_money < cost):
 							return JsonResponse({"status":"106", "data":{"description":"Not enough money for upgrade!"}})
 
 						cap = capacity(turn = int(turn)+1 , fid_id = user.factory_id)
-						cap.capacity = calculate_next_capacity(cap_old)
+						cap.capacity = algo.calculate_next_capacity(cap_old)
 						cap.save()
 						money.moneyDecrease(user.factory_id, cost, int(turn))
 					else:
@@ -1005,11 +994,14 @@ def mapp(request):
 def testmap(request):
 	return render(request, "map_test.html")
 
+
 @decorator_from_middleware(middleware.loggedIn)
 def testhome(request):
 	id = request.session["user_id"]
 	user = users.objects.get(pid = id)
-	return render(request, "index.html",{ "name" : user.name })
+	if user.factory:
+		return render(request, "index.html",{ "name" : user.prag_fullname })
+	return redirect(beerf_15.views.home)
 def instructions(request):
 	return render(request,"instructions.html")
 
@@ -1053,6 +1045,7 @@ def graph_back(request):
 							new['turn']=turn
 							new['demand']=int(demand.quantity)
 							demands[retailer].append(new)
+
 			retailer = 0			
 			for frid in unlocked_frids:
 				retailer=retailer+1
@@ -1119,3 +1112,34 @@ def graph_opp_back(request):
 			return JsonResponse({"status":"200", "data":{"history":demands}})
 	else:
 		return JsonResponse({"status":"100", "data":{"description":"Failed! Wrong type of request"}})
+
+
+@decorator_from_middleware(middleware.SessionPIDAuth)
+@csrf_exempt
+def getScore(request):
+	user_id = int(request.POST.get("user_id"))
+	user = users.objects.get(pk=user_id)
+	turn = int(request.POST.get("turn"))
+	scr = score.objects.get(pid = user, turn = turn).score
+	return JsonResponse({"status":"200", "data":{"description":"Success!","turn":turn,"score":scr}})
+
+@decorator_from_middleware(middleware.SessionPIDAuth)
+@csrf_exempt
+def getTotalScore(request):
+	user_id = int(request.POST.get("user_id"))
+	user = users.objects.get(pk=user_id)
+	scores = score.objects.filter(pid = user)
+	sum_of_scores = 0
+	for scr in scores:
+		sum_of_scores += scr.score
+	return JsonResponse({"status":"200", "data":{"description":"Success!","score":sum_of_scores}})
+
+@decorator_from_middleware(middleware.loggedIn)
+def review(request):
+	user = users.objects.get(pk=request.session['user_id'])
+	if not user.factory:
+		return redirect(beerf_15.views.home)
+	turn = status.objects.get(pid=user).turn
+	if turn<=25:
+		return redirect(beerf_15.views.testhome)
+	return render(request, "review.html")
