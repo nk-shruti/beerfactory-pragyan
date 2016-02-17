@@ -7,8 +7,35 @@
 	height:40%;
 
 }
+#stage_details
+{
+    display: block;
+	
+    width: 70%;
+    position: absolute;
+    left:15%;
+    top:10%;
+    box-shadow: 0 0 2.5rem -0.5rem  black;
+    text-align: center;
+    font-size: 1.5rem;
+z-index: 999;
+background-color: #222222;
+}
 
+#stage_details2
+{
 
+    display: block;
+    width: 70%;
+    position: absolute;
+    left:15%;
+    top:10%;
+    box-shadow: 0 0 2.5rem -0.5rem  black;
+    text-align: center;
+    font-size: 1.5rem;
+z-index: 999;
+background-color: #222222;
+}
 #msg1,#msg2,#msg3,#msg4
 {
 	position: absolute;
@@ -75,7 +102,12 @@
 	overflow-y: auto;
 	font-size: 1.5rem;
 	line-height: 3.5rem;
+	/*opacity: 0.6;*/
 
+}
+#rightback1, #rightback2
+{
+	opacity: 0.6;
 }
 .btn.btn-default{
 	font-size: 1.5rem;

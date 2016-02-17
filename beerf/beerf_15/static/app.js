@@ -79,7 +79,7 @@ app.factory('AnyTimeFunctions', ['$http', function($http){
 	};
 
 	getStatusDetails = function(id){
-
+		// alert('now');
 		return $http({
 	   		 	method: 'POST',
 	    		url: getStatusUrl,
@@ -101,7 +101,10 @@ app.factory('AnyTimeFunctions', ['$http', function($http){
 	};
 
 	getHistoryDetails = function(id){
+		
+		// document.getElementById(stage_details).style.display='block';
 
+			//alert("getting history");
 		return $http({
 	   		 	method: 'POST',
 	    		url: historyUrl,
@@ -537,7 +540,7 @@ app.controller('StoreController', ['AnyTimeFunctions', 'TurnStageBasedFunctions'
 	});
 
 	vm.getDemand = function(){
-
+		
 		if(vm.status.data.stage === '0'){
 
 			TurnStageBasedFunctions.getDemandDetails(id, vm.status.data.turn, vm.status.data.stage).success(function(json){
@@ -569,6 +572,8 @@ app.controller('StoreController', ['AnyTimeFunctions', 'TurnStageBasedFunctions'
 			   		progressbar.css('width','50%');
 			    	progressbar.html("Stage 2 of 4");
 					toastr.success('Retailers have placed their demands to you!', 'Demand given!');
+					angular.element(stage_details).css('display','block');
+
 				}
 				else
 				{
@@ -659,7 +664,8 @@ app.controller('StoreController', ['AnyTimeFunctions', 'TurnStageBasedFunctions'
 			    	progressbar.html("Stage 3 of 4");
 			    	angular.element(demandpopup).css('display','none');
 					toastr.success('You have supplied ' + supply + ' amount of beers to the respective retailers' , 'Beers sent!');
-
+					// document.getElementById('stage_details2').style.display='block';
+					angular.element(stage_details2).css('display','block');
 				}
 				else
 				{
@@ -681,8 +687,18 @@ app.controller('StoreController', ['AnyTimeFunctions', 'TurnStageBasedFunctions'
 
 	vm.closepopup = function() {
     angular.element(demandpopup).css('display','none');
+    // angular.element(right_half).css('opacity','1');
 	}
-
+	vm.closestagedetails = function($scope) {
+		 angular.element(stage_details).css('display','none');
+		// $scope.show= false;
+		angular.element(rightback1).css('opacity','1');
+	}
+vm.closestagedetails2 = function() {
+		angular.element(stage_details2).css('display','none');
+		// angular.element(stage_details2).show=false;
+		angular.element(rightback2).css('opacity','1');
+	}
 	vm.placeOrder = function(){
 		
 		

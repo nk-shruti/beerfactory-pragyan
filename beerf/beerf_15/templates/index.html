@@ -129,12 +129,21 @@
 
         <div id="right_half">
             <!-- <div ng-show="store.status.data.stage=='1'||store.status.data.stage=='0'||store.status.data.stage=='2'"> -->
-
+            
             <!-- stage 0 or 1. Getting demand stage or placing order to the retailers stage-->
+        <div id="stage_details" ng-show="(store.status.data.stage=='1'||store.status.data.stage=='0')">  
+                    <div class="close" ng-click="store.closestagedetails()">X</div>
+                    Stage One: <br>
+                    Click on the retailer in the map to view his demand and to decide how much beer to send.
+        </div>  
+       <div id="stage_details2" ng-show="store.status.data.stage=='2'">  
+                    <div class="close" ng-click="store.closestagedetails2()">X</div>
+                    Stage Two: <br>
+                    Decide the number of beer to order. 
+        </div>  
 
-      
-
-            <div ng-show="store.status.data.stage=='1'||store.status.data.stage=='0'">
+            <div ng-show="store.status.data.stage=='1'||store.status.data.stage=='0'" id="rightback1">
+               
 
                 <ul id="demandtabs" class="nav nav-tabs" role="tablist">
                     <li class="active">
@@ -147,7 +156,7 @@
                     <!-- <button class = "btn btn-default" value = "Get Demand" ng-click = "store.getDemand()" onclick="getDemand()">GET DEMAND</button> -->
                     <!-- <button ui-sref="stage1">Click here!</button> -->
                 <div class="tab-content">
-                    <div id="demandtab" class="tab-pane fade in active" style="opacity:0.99;">
+                    <div id="demandtab" class="tab-pane fade in active">
                         <div id="selections" class="rightcontent">
                             <div class="well"><center>CLICK ON A RETAILER OR FACTORY TO SEE THE DEMAND</center></div>
 
@@ -243,7 +252,7 @@
                             <div class="close" ng-click="store.closepopup()">close</div>
                                 <table class="dtab table table-striped" style="width:100%;"> 
                                     <thead>
-                                        <tr> 
+        p                                <tr> 
                                             <th> RETAILER </th>
                                             <th> ORDER <br> AMOUNT </th>
                                             <th> AMOUNT TO <br> DELIVER </th>
@@ -306,7 +315,7 @@
             </div>
 
             <!-- stage 2 placing order stage-->
-            <div ng-show="store.status.data.stage=='2'">
+            <div ng-show="store.status.data.stage=='2'" id="rightback2">
                 
                 <ul id="ordertabs" class="nav nav-tabs" role="tablist">
                     <li class="active">
