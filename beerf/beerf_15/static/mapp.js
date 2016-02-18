@@ -115,7 +115,7 @@ singleSelect: false,
 
         altImages:{
             color: 'static/images/map1.gif',
-            black: 'static/images/mapblack.gif'
+            // black: 'static/images/map1.gif'
         },
         
 
